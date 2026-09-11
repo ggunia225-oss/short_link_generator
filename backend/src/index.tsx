@@ -2,6 +2,7 @@ import express from 'express'
 import { randomBytes } from 'crypto'
 import cors from 'cors'
 import { z } from 'zod'
+import { prisma } from './lib/prisma'
 
 const expressApp = express()
 expressApp.use(cors())
@@ -18,15 +19,8 @@ function generateShortCode(length: number = 6): string {
   return result
 }
 
-const urlStats = new Map<string,{
-    originalUrl: string
-    shortCode: string
-    clicks: number
-    createdAt: string
-}>()
-
 const shortenUrlSchema = z.object({
-  originalUrl: z.string()
+  original_url: z.string()
     .min(1, 'Ссылка не должна быть пустой')
     .refine((url) => {
         try {
@@ -38,83 +32,110 @@ const shortenUrlSchema = z.object({
     }, 'Невалидная ссылка. Должна начинаться с http:// или https://')
 })
 
-// Создание короткой ссылки
-expressApp.post('/api/shorten', (req, res) => {
-    const result = shortenUrlSchema.safeParse(req.body)
-
-    if (!result.success) {
-        const errors = result.error.issues.map(issue => issue.message).join(', ')
-        return res.status(400).json({ error: errors })
-    }
-
-    const { originalUrl } = result.data
-
-    let shortCode: string
-    let isUnique = false
-    let attempts = 0
-
-    do {
-        shortCode = generateShortCode(6)
-        attempts++
-        if (attempts > 10) {
-            return res.status(500).json({error: 'Не удалось сгенерировать уникальный код'})
-        }
-        if (!urlStats.has(shortCode)) isUnique = true
-    } while (!isUnique)
-
-    urlStats.set(shortCode, {
-        originalUrl,
-        shortCode,
-        clicks: 0,
-        createdAt: new Date().toISOString(),
-    })
-
-    res.status(201).json({
-        shortCode,
-        shortUrl: `http://localhost:3000/${shortCode}`
-    })
-})
-
 const shortCodeSchema = z.object({
-  shortCode: z.string()
+  short_code: z.string()
     .length(6, 'Код должен состоять из 6 символов')
     .regex(/^[A-Za-z0-9]+$/, 'Код должен содержать только латиницу и цифры')
 })
 
-// Редирект и увеличение счетчика
-expressApp.get('/:shortCode', (req, res) => {
-    const result = shortCodeSchema.safeParse(req.params)
-    if (!result.success) {
-        return res.status(400).json({error: 'неверный формат короткого кода'})
+// Создание короткой ссылки
+expressApp.post('/api/shorten', async (req, res) => {
+    try {
+        const result = shortenUrlSchema.safeParse(req.body)
+
+        if (!result.success) {
+            const errors = result.error.issues.map(issue => issue.message).join(', ')
+            return res.status(400).json({ error: errors })
     }
     
-    const { shortCode } = result.data
-    const entry = urlStats.get(shortCode)
-    
-    if (!entry) {
-        return res.status(404).send('Ссылка не найдена')
+    const { original_url } = result.data
+
+    let short_code: string
+    // let isUnique = false
+    let attempts = 0
+    while (true) {
+        short_code = generateShortCode(6)
+        attempts++
+        if (attempts > 10) {
+            return res.status(500).json({error: 'Не удалось сгенерировать уникальный код'})
+        }
+        const existing = await prisma.urls.findUnique({where: { short_code }})
+        if (!existing) break
     }
 
-    entry.clicks += 1
-    urlStats.set(shortCode, entry)
+    const created = await prisma.urls.create({
+        data: { short_code, original_url },
+    })
+
+    res.status(201).json({
+        shortCode: created.short_code,
+        shortUrl: `http://localhost:3000/${created.short_code}`,
+    })
     
-    res.redirect(302, entry.originalUrl)
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({error:'Внутренняя ошибка сервера'})
+    }
+    
+})
+
+
+
+// Редирект и увеличение счетчика
+expressApp.get('/:short_code', async (req, res) => {
+    try {
+        const result = shortCodeSchema.safeParse(req.params)    
+        
+        if (!result.success) {
+            return res.status(400).json({error: 'неверный формат короткого кода'})
+        }
+
+        const { short_code } = result.data
+
+        const entry = await prisma.urls.update({
+            where: {short_code},
+            data: {clicks: {increment: 1}},
+        }).catch(() => null)
+
+        if (!entry) {
+            return res.status(404).send('Ссылка не найдена')
+        }
+
+        res.redirect(302, entry.original_url)
+    } catch (err) {
+        console.error(err)
+        res.status(500).send('Внутренняя ошибка сервера')
+    }
+
 })
 
 
 // Статистика ссылки
-expressApp.get('/api/stats/:shortCode', (req, res) => {
-    const { shortCode } = req.params
-    const entry = urlStats.get(shortCode)
-    if (!entry){
-        return res.status(404).json({error: 'Ссылка не найдена'})
+expressApp.get('/api/stats/:short_code', async (req, res) => {
+    try {
+        const result = shortCodeSchema.safeParse(req.params)
+        if (!result.success) {
+            return res.status(400).json({error: 'Неверный формат короткого кода'})
+        }
+
+        const { short_code } = result.data
+
+        const entry = await prisma.urls.findUnique({where: { short_code }})
+        if (!entry){
+            return res.status(404).json({error: 'Ссылка не найдена'})
+        }
+
+        res.json({
+            originalUrl: entry.original_url,
+            shortCode: entry.short_code,
+            clicks: entry.clicks,
+            createdAt: entry.created_at,
+        })
+
+    } catch (err) {
+        console.error(err)
+        res.status(500).json({error: 'Внутренняя ошибка сервера'})
     }
-    res.json({
-        originalUrl: entry.originalUrl,
-        shortCode: entry.shortCode,
-        clicks: entry.clicks,
-        createdAt: entry.createdAt,
-    })
     
 })
 

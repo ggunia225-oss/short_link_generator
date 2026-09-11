@@ -1,10 +1,10 @@
 const API_BASE = 'http://localhost:3000'
 
-export const shortenUrl = async (originalUrl: string) => {
+export const shortenUrl = async (original_url: string) => {
   const res = await fetch(`${API_BASE}/api/shorten`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ originalUrl }),
+    body: JSON.stringify({ original_url }),
   })
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}))
@@ -15,8 +15,8 @@ export const shortenUrl = async (originalUrl: string) => {
   return res.json() // { shortCode, shortUrl }
 }
 
-export const getStats = async (shortCode: string) => {
-  const res = await fetch(`${API_BASE}/api/stats/${shortCode}`)
+export const getStats = async (short_code: string) => {
+  const res = await fetch(`${API_BASE}/api/stats/${short_code}`)
   if (!res.ok) throw new Error('Статистика не найдена')
   return res.json() // { originalUrl, shortCode, clicks, createdAt }
 }

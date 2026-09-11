@@ -2,13 +2,9 @@
     "name": "web_tz",
     "private": true,
     "version": "0.0.0",
-    "workspaces": [
-        "backend",
-        "frontend"
-    ],
     "scripts": {
-        "backend": "npm run dev -w backend",
-        "frontend": "npm run dev -w frontend",
+        "backend": "npm run dev --prefix backend",
+        "frontend": "npm run dev --prefix frontend",
         "dev": "npm-run-all --parallel backend frontend"
     },
     "devDependencies": {
