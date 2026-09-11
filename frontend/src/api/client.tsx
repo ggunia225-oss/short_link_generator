@@ -1,4 +1,5 @@
-const API_BASE = 'http://localhost:3000'
+// const API_BASE = 'http://localhost:3000'
+const API_BASE = ''
 
 export const shortenUrl = async (original_url: string) => {
   const res = await fetch(`${API_BASE}/api/shorten`, {
