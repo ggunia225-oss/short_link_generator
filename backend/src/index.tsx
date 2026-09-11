@@ -3,6 +3,8 @@ import { randomBytes } from 'crypto'
 import cors from 'cors'
 import { z } from 'zod'
 import { prisma } from './lib/prisma'
+import { connectRedis, redis } from './lib/redis'
+
 
 const expressApp = express()
 expressApp.use(cors())
@@ -92,16 +94,43 @@ expressApp.get('/:short_code', async (req, res) => {
 
         const { short_code } = result.data
 
-        const entry = await prisma.urls.update({
+        // Проверка кэша redis
+        const cacheKey = `short:${short_code}`
+        let original_url: string | null = null
+
+        try {
+            original_url = await redis.get(cacheKey)
+        } catch (err) {
+            console.warn('Redis недоступен')
+        }
+
+        if (original_url) {
+            console.log(`Cache redis ${short_code}`)
+        } else {
+            console.log(`Cache no ${short_code}`)
+            const entry = await prisma.urls.findUnique({where: { short_code }})
+            
+            if (!entry) {
+                return res.status(404).send('Ссылка не найдена')
+            }
+
+            original_url = entry.original_url
+            
+            // Сохранение кэша на час
+            try {
+                await redis.set(cacheKey, original_url, {EX:3600})
+            } catch (err) {
+                console.warn('Redis недоступен')
+            }
+        }
+
+
+        await prisma.urls.update({
             where: {short_code},
             data: {clicks: {increment: 1}},
         }).catch(() => null)
 
-        if (!entry) {
-            return res.status(404).send('Ссылка не найдена')
-        }
-
-        res.redirect(302, entry.original_url)
+        res.redirect(302, original_url)
     } catch (err) {
         console.error(err)
         res.status(500).send('Внутренняя ошибка сервера')
@@ -139,6 +168,11 @@ expressApp.get('/api/stats/:short_code', async (req, res) => {
     
 })
 
+
+connectRedis().catch((err: unknown) =>
+  console.warn('Redis не подключён, работаем без кеша:', err)
+)
+
 expressApp.listen(3000, () => {
-    console.info('Listening http://localhost:3000')
+  console.info('Listening http://localhost:3000')
 })
