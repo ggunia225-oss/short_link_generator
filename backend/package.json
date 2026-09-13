@@ -5,8 +5,7 @@
     "scripts": {
         "dev": "ts-node-dev --rs ./src/index.tsx",
         "build": "tsc --build ./tsconfig.json",
-        "pmd": "prisma migrate dev",
-        "postinstall": "prisma generate || exit 0"
+        "pmd": "prisma migrate dev"
     },
     "prisma": {
         "schema": "./src/prisma/schema.prisma"

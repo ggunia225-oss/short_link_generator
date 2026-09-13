@@ -6,8 +6,8 @@
 
     "compilerOptions": {
         "target": "ES2021",
-        "module": "CommonJS",
-        "moduleResolution": "bundler",
+        "module": "nodenext",
+        "moduleResolution": "nodenext",
         "jsx": "react-jsx",
         "outDir": "./dist",
         "rootDir": "./src",
@@ -16,8 +16,7 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
-        "noEmit": true,
-        "types": ["vite/client", "node"]
+        "types": ["node"]
     },
     "include": ["src/**/*"],
     "exclude": ["node_modules", "dist"]

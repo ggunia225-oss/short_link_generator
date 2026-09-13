@@ -10,7 +10,7 @@ export function LinkStats() {
         originalUrl: string;
         shortCode: string;
         clicks: number;
-        createAt: string;
+        createdAt: string;
     }>(null);
 
     const [loading, setLoading] = useState(false);
@@ -51,7 +51,7 @@ export function LinkStats() {
                     <ul>
                         <li>Оригинальный URL: {stats.originalUrl}</li>
                         <li>Количество переходов: {stats.clicks}</li>
-                        <li>Дата создания: {stats.createAt}</li>
+                        <li>Дата создания: {stats.createdAt}</li>
                     </ul>
                 </div>
             )}

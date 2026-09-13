@@ -2,25 +2,107 @@ MVP сервиса для сокращения ссылок с базовой а
 
 Монорепозиторий: backend (Node.js + Express + TypeScript + Prisma + PostgreSQL) и frontend (React + TypeScript + Vite).
 
-Стек технологий
+## Стек технологий
 
-Backend
-- Node.js
-- Express
+### Backend
+- Node.js (v22+)
+- Express - веб-фрейморк
 - TypeScript - типизация
-- Prisma - ORM для работы с базой
-- PostgreSQL - база данных
+- Prisma (v7) - ORM для работы с базой (с драйвер-адаптером @prisma/adapter-pg)
+- PostgreSQL (v16) - база данных
 - Zod - валидация данных
 - CORS - для кросс-доменных запросов
-- Redis - кеширование (планируется)
+- Redis - кеширование (TTL 1 час)
 
-Frontend
+### Frontend
 - React
 - TypeScript
 - Vite - сборщик
-- CSS - модули - стилизация
+- CSS - стилизация
 
-Инфраструктура
-Docker — контейнеризация (планируется)
+### Инфраструктура
+- Docker + Docker Compose — контейнеризация всего стека
+- Nginx - раздача статики и проксирование API в продакшене
 
-Установка и запуск
+## API
+POST | /api/shorten - создание короткой ссылки. Принимает {original_url:string}. Возвращает {shortCode, shortUrl}
+GET | /:short_code - Редирект на оригинальный URL. Увеличивает счетчик переходов
+GET | /api/stats/:short_code - Статистика. Возвращает {originalUrl, shortCode, clicks, createAt}
+
+## Запуск: Через Docker Compose
+
+### 1. Требования
+- Docker + Docker Compose
+
+### 2. Клонирование и настройка
+git clone https://github.com/ggunia225-oss/short_link_generator.git
+cd short_link_generator
+Создайте корневой .env (рядом с docker-compose.yml)
+Пример приложен в .env.example можно переименовать в .env
+
+В Docker 'DB_HOST' и 'REDIS_HOST' переопределяются автоматически на 'postgres' и 'redis' - их в .env писать не нужно
+
+### 3. Сборка и запуск
+
+docker compose up -d --build
+
+В докерфайлах прописаны зеркала, так как возможно у кого то не соберется если вдруг будет пытаться устанавливать пакеты из оригинального источника(из за санкций).  
+Либо если у вас все работает с оригинальными источниками, то уберите строки с комментарием '# Зеркала' в докерфайлах, которые лежат в двух папках(backend,frontend)
+
+Если будут предупреждения на счет rimraf, inflight, glob, то можно не обращать внимания и продолжить сборку.
+
+Поднимутся 4 сервиса:
+- postgres
+- redis
+- backend
+- frontend
+
+### 4. Проверка
+
+docker compose ps
+docker compose logs -f backend
+
+Приложение доступно по адресу: http://localhost:8080
+
+### 5. Остановка
+
+docker compose down
+
+С удалением данных БД:
+docker compose down -v
+
+## Примеры запросов
+
+### Браузер
+Зайти по адресу http://localhost:8080 и провести манипуляции там. Либо через curl, который будет описан ниже.
+
+### Создание короткой ссылки
+curl -X POST http://localhost:8080/api/shorten -H "Content-Type: application/json" -d '{"original_url":"https://example.com/very/long/url"}'
+
+Ответ:
+{"shortCode": "abc123",
+"shortUrl":"http://localhost:3000/abc123"
+}
+
+### Переход по короткой ссылке
+curl -L http://localcost:3000/abc123
+
+Браузер перенаправится на https://example.com/very/long/url, а счетчик clicks увеличится на 1
+
+### Статистика
+curl http://localhost:3000/api/stats/abc123
+
+Ответ:
+{"originalUrl":"https://example.com/very/long/url",
+"shortCode":"abc123",
+"clicks":5,
+"createAt":"2026-09-11T12:00:00.000Z"
+}
+
+
+## Технические детали
+- Короткий код - 6 символов('A-Za-z0-9'), генерируется случайно с проверкой на коллизии.
+- Кэширование - при первом редиректе URL читается из PostgreSQL и сохраняется в Redis на 1 час. При повторных запросах - отдается из Redis, БД для URL не читается.
+- Счетчик переходов - всегда инкрементируется в PostgreSQL (кешировать нельзя - потеряем данные при падении Redis).
+- Prisma 7 - использует драйвер-адаптер @prisma/adapter-pg
+- Валидация - zod на бэкенде (URL, короткий код)
