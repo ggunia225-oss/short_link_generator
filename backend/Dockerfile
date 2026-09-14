@@ -40,6 +40,8 @@ COPY --from=builder /app/src/generated ./dist/generated
 
 RUN npm prune --omit=dev
 
+RUN mkdir -p /app/logs
+
 EXPOSE 3000
 
 CMD ["node", "dist/index.js"]

@@ -13,3 +13,5 @@ export const DATABASE_URL =
 export const REDIS_HOST = process.env.REDIS_HOST || 'localhost'
 export const REDIS_PORT = process.env.REDIS_PORT || '6379'
 export const REDIS_URL = `redis://${REDIS_HOST}:${REDIS_PORT}`
+
+export const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'

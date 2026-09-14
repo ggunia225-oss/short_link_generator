@@ -23,8 +23,9 @@ export function LinkShorts() {
         try {
             const data = await shortenUrl(url);
             setShortUrl(data.shortUrl);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Не удалось сократить ссылку'
+            setError(message);
             setShortUrl('');
         } finally {
             setLoading(false);

@@ -3,7 +3,7 @@
     "private": true,
     "version": "0.0.0",
     "scripts": {
-        "dev": "ts-node-dev --rs ./src/index.tsx",
+        "dev": "ts-node-dev --rs ./src/index.ts",
         "build": "tsc --build ./tsconfig.json",
         "pmd": "prisma migrate dev"
     },
@@ -27,6 +27,7 @@
         "express": "^5.2.1",
         "pg": "^8.23.0",
         "redis": "^6.2.1",
+        "winston": "^3.19.0",
         "zod": "^4.5.4"
     }
 }

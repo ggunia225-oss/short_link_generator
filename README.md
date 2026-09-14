@@ -25,9 +25,9 @@ MVP сервиса для сокращения ссылок с базовой а
 - Nginx - раздача статики и проксирование API в продакшене
 
 ## API
-POST | /api/shorten - создание короткой ссылки. Принимает {original_url:string}. Возвращает {shortCode, shortUrl}
-GET | /:short_code - Редирект на оригинальный URL. Увеличивает счетчик переходов
-GET | /api/stats/:short_code - Статистика. Возвращает {originalUrl, shortCode, clicks, createAt}
+POST | /api/shorten - создание короткой ссылки. Принимает {originalUrl:string}. Возвращает {shortCode, shortUrl}
+GET | /:shortCode - Редирект на оригинальный URL. Увеличивает счетчик переходов
+GET | /api/stats/:shortCode - Статистика. Возвращает {originalUrl, shortCode, clicks, createdAt}
 
 ## Запуск: Через Docker Compose
 
@@ -85,7 +85,7 @@ curl -X POST http://localhost:8080/api/shorten -H "Content-Type: application/jso
 }
 
 ### Переход по короткой ссылке
-curl -L http://localcost:3000/abc123
+curl -L http://localhost:3000/abc123
 
 Браузер перенаправится на https://example.com/very/long/url, а счетчик clicks увеличится на 1
 
@@ -96,7 +96,7 @@ curl http://localhost:3000/api/stats/abc123
 {"originalUrl":"https://example.com/very/long/url",
 "shortCode":"abc123",
 "clicks":5,
-"createAt":"2026-09-11T12:00:00.000Z"
+"createdAt":"2026-09-11T12:00:00.000Z"
 }
 
 

@@ -29,8 +29,9 @@ export function LinkStats() {
         try {
             const data = await getStats(code);
             setStats(data);
-        } catch (err) {
-            setError('Код не найден');
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Код не найден'
+            setError(message);
             setStats(null);
         } finally {
             setLoading(false);
