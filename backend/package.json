@@ -3,18 +3,24 @@
     "private": true,
     "version": "0.0.0",
     "scripts": {
-        "dev": "ts-node-dev --rs ./src/index.ts",
+        "dev": "ts-node-dev --rs ./src/server.ts",
         "build": "tsc --build ./tsconfig.json",
-        "pmd": "prisma migrate dev"
-    },
-    "prisma": {
-        "schema": "./src/prisma/schema.prisma"
+        "start": "node dist/server.js",
+        "pmd": "prisma migrate dev",
+        "pretest": "dotenv -e .env.test -- prisma migrate deploy",
+        "test": "jest --runInBand"
     },
     "devDependencies": {
         "@types/cors": "^2.8.19",
         "@types/express": "^5.0.6",
+        "@types/jest": "^29.5.14",
         "@types/node": "^26.5.0",
+        "@types/supertest": "^7.2.1",
+        "dotenv-cli": "^11.0.0",
+        "jest": "^29.7.0",
         "prisma": "^7.10.0",
+        "supertest": "^7.2.2",
+        "ts-jest": "^29.4.12",
         "ts-node": "^10.9.2",
         "ts-node-dev": "^2.0.0",
         "typescript": "^5.6.2"

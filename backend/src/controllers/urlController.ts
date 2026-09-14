@@ -32,7 +32,7 @@ export const urlController = {
     try {
       const result = shortCodeSchema.safeParse(req.params)
       if (!result.success) {
-        return res.status(400).json({ error: 'Неверный формат короткого кода' })
+        return res.status(404).json({ error: 'Неверный формат короткого кода' })
       }
 
       const { shortCode } = result.data
@@ -40,7 +40,7 @@ export const urlController = {
       // Проверяем формат: 6 символов, только латиница и цифры
       if (!/^[A-Za-z0-9]{6}$/.test(shortCode)) {
         // Если формат неверный — это не валидный код, а значит "не найдено"
-        return res.status(404).send('Ссылка не найдена');
+        return res.status(404).send('Невалидный код');
       }
 
       const originalUrl = await urlService.resolveShortCode(shortCode)
@@ -53,7 +53,8 @@ export const urlController = {
       return res.redirect(302, originalUrl)
     
     } catch (err) {
-      console.error(err)
+      // console.error(err)
+      logger.error('Ошибка редиректа', err)
       return res.status(500).send('Внутренняя ошибка сервера')
     }
   },
@@ -63,7 +64,7 @@ export const urlController = {
     try {
       const result = shortCodeSchema.safeParse(req.params)
       if (!result.success) {
-        return res.status(400).json({ error: 'Неверный формат короткого кода' })
+        return res.status(404).json({ error: 'Невалидный код' })
       }
 
       const { shortCode } = result.data
@@ -80,7 +81,8 @@ export const urlController = {
         createdAt: entry.created_at,
       })
     } catch (err) {
-      console.error(err)
+      // console.error(err)
+      logger.error('Ошибка получения статистики', err)
       return res.status(500).json({ error: 'Внутренняя ошибка сервера' })
     }
   },

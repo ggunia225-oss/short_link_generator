@@ -53,7 +53,8 @@ export const urlService = {
         // console.log(`Извлекаем из кэша: ${short_code}`)
         logger.debug('Попытка извлечения из кэша: ${short_code}')
         if (isSelfRedirect(original_url)) {
-          console.warn(`Циклический редирект обнаружен для ${short_code}`)
+          // console.warn(`Циклический редирект обнаружен для ${short_code}`)
+          logger.warn(`Циклический редирект обнаружен для ${short_code}`)
           return null
         }
         return original_url
@@ -64,7 +65,6 @@ export const urlService = {
     }
 
     // 2. Получаем из БД
-    console.log(`Извлекаем из бд: ${short_code}`)
     const entry = await urlRepository.findByShortCode(short_code)
     if (!entry) return null
 

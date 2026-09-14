@@ -11,7 +11,7 @@ export const shortenUrlSchema = z.object({
         } catch {
             return false
         }
-    }, 'Невалидная ссылка. Должна начинаться с http:// или https://')
+    }, 'Невалидная ссылка. Должна начинаться с http:// или https://.')
     .refine((url) => {
         try {
             const parsed = new URL(url)
@@ -21,7 +21,7 @@ export const shortenUrlSchema = z.object({
         } catch {
             return false
         }
-    }, 'а также нельзя сокращать ссылки на этот же сервис'),
+    }, 'Нельзя сокращать ссылки на этот же сервис'),
 })
 
 export const shortCodeSchema = z.object({
