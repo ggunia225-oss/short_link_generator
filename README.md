@@ -99,6 +99,49 @@ curl http://localhost:3000/api/stats/abc123
 "createdAt":"2026-09-11T12:00:00.000Z"
 }
 
+## Тесты
+Проект покрыт интеграционными тестами API (Jest + Supertest). 
+Тесты работают с реальной тестовой базой postgreSQL 'web_tz_test', что позволяет проверить не только логику контроллеров, но и корректность работы Prisma, миграций и ограничений БД.
+
+### Что покрыто
+
+Эндпоинты:
+ - POST /api/shorten
+ - GET /:shortCode
+ - GET /api/stats/:shortCode
+
+Всего 12 тестов.
+
+### Стек тестирования
+- Jest - фреймворк и раннер тестов
+- Supertest - Реез-запросы к express-приложению без запуска сервера
+- ts-jest - транспиляция TypeScript на лету
+- dotenv-cli - загрузка .env.test в pretest
+
+### Настройка окружения
+
+1. Создайте тестовую базу данных:
+Пример запроса: CREATE DATABASE web_tz_test OWNER user_tz;
+
+2. Скопируйте шаблон переменных окружения:
+cd backend/.env.test.example backend/.env.test
+
+3. Заполните backend/.env.test своими значениями.
+
+4. Запуск тестов
+cd backend
+npm test
+Скрипт pretest автоматически применит миграции к web_tz_test перед прогоном:
+"pretest": "dotenv -e .env.test -- prisma migrate deploy",
+"test": "jest --runInBand"
+
+### Изоляция тестов
+Между тестами БД очищается автоматически (beforeEach в setup.ts)
+
+### Redis в тестах
+Тесты не требуют запущенного Redis. В setup.ts стоит заглушка.
+
+
 
 ## Технические детали
 - Короткий код - 6 символов('A-Za-z0-9'), генерируется случайно с проверкой на коллизии.
