@@ -39,7 +39,7 @@ services:
       DB_HOST: postgres
       REDIS_HOST: redis
       NODE_ENV: production
-      BASE_URL: http://localhost:8080
+      BASE_URL: ${BASE_URL:-http://localhost:8080}
     restart: unless-stopped
     depends_on:
       postgres:
@@ -50,7 +50,7 @@ services:
       - "3000:3000"
     volumes:
       - ./logs:/app/logs
-    command: sh -c "npx prisma migrate deploy && node dist/index.js"
+    command: sh -c "npx prisma migrate deploy && node dist/server.js"
   
   frontend:
     build:
