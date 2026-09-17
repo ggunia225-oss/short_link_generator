@@ -19,7 +19,7 @@ export const urlController = {
       return res.status(201).json(data)
     } catch (err) {
       // console.error(err)
-      logger.error('Ошибка создания ссылки', err)
+      logger.error('Ошибка создания ссылки:', err)
       if (err instanceof Error && err.message.includes('уникальный код')) {
         return res.status(500).json({ error: err.message })
       }
@@ -37,12 +37,6 @@ export const urlController = {
 
       const { shortCode } = result.data
 
-      // Проверяем формат: 6 символов, только латиница и цифры
-      if (!/^[A-Za-z0-9]{6}$/.test(shortCode)) {
-        // Если формат неверный — это не валидный код, а значит "не найдено"
-        return res.status(404).send('Невалидный код');
-      }
-
       const originalUrl = await urlService.resolveShortCode(shortCode)
 
       if (!originalUrl) {
@@ -54,7 +48,7 @@ export const urlController = {
     
     } catch (err) {
       // console.error(err)
-      logger.error('Ошибка редиректа', err)
+      logger.error('Ошибка редиректа:', err)
       return res.status(500).send('Внутренняя ошибка сервера')
     }
   },
@@ -82,7 +76,7 @@ export const urlController = {
       })
     } catch (err) {
       // console.error(err)
-      logger.error('Ошибка получения статистики', err)
+      logger.error('Ошибка получения статистики:', err)
       return res.status(500).json({ error: 'Внутренняя ошибка сервера' })
     }
   },

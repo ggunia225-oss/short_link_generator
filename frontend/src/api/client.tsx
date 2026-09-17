@@ -1,5 +1,6 @@
-const API_BASE = 'http://localhost:3000'
-// const API_BASE = ''
+import { extractShortCode } from '../utils/extractShortCode'
+
+const API_BASE = import.meta.env.VITE_API_BASE ?? ''
 
 interface ApiError {
   error?: string
@@ -21,7 +22,14 @@ export const shortenUrl = async (originalUrl: string) => {
 }
 
 export const getStats = async (shortCode: string) => {
-  const res = await fetch(`${API_BASE}/api/stats/${shortCode}`)
+  const short_code = extractShortCode(shortCode)
+  
+  if (!short_code) {
+    throw new Error('Не удалось распознать код в ссылке')
+  }
+
+  const res = await fetch(`${API_BASE}/api/stats/${short_code}`)
+  
   if (!res.ok) throw new Error('Статистика не найдена')
   return res.json() // { originalUrl, shortCode, clicks, createdAt }
 }

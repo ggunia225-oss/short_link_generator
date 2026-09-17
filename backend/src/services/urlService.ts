@@ -21,10 +21,6 @@ export const urlService = {
     let short_code: string
     let attempts = 0
 
-    if (isSelfRedirect(originalUrl)) {
-      throw new Error('Нельзя сокращать ссылки на этот же сервис')
-    }
-
     while (true) {
       short_code = generateShortCode(6)
       attempts++
@@ -51,7 +47,7 @@ export const urlService = {
       original_url = await redis.get(cacheKey)
       if (original_url) {
         // console.log(`Извлекаем из кэша: ${short_code}`)
-        logger.debug('Попытка извлечения из кэша: ${short_code}')
+        logger.debug(`Попытка извлечения из кэша: ${short_code}`)
         if (isSelfRedirect(original_url)) {
           // console.warn(`Циклический редирект обнаружен для ${short_code}`)
           logger.warn(`Циклический редирект обнаружен для ${short_code}`)

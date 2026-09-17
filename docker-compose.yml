@@ -55,6 +55,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        VITE_API_BASE: ""
     container_name: web_tz_frontend
     restart: unless-stopped
     depends_on:

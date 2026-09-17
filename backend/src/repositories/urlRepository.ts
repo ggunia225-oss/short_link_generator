@@ -19,9 +19,6 @@ export const urlRepository = {
     return prisma.urls.update({
       where: { short_code },
       data: { clicks: { increment: 1 } },
-    }).catch((err: unknown) => {
-      console.error('Не удалось инкрементировать clicks для', short_code, err)
-      return null
     })
   },
 }

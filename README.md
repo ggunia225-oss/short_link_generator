@@ -77,7 +77,7 @@ docker compose down -v
 Зайти по адресу http://localhost:8080 и провести манипуляции там. Либо через curl, который будет описан ниже.
 
 ### Создание короткой ссылки
-curl -X POST http://localhost:8080/api/shorten -H "Content-Type: application/json" -d '{"original_url":"https://example.com/very/long/url"}'
+curl -X POST http://localhost:8080/api/shorten -H "Content-Type: application/json" -d '{"originalUrl":"https://example.com/very/long/url"}'
 
 Ответ:
 {"shortCode": "abc123",
@@ -124,7 +124,7 @@ curl http://localhost:3000/api/stats/abc123
 Пример запроса: CREATE DATABASE web_tz_test OWNER user_tz;
 
 2. Скопируйте шаблон переменных окружения:
-cd backend/.env.test.example backend/.env.test
+cp backend/.env.test.example backend/.env.test
 
 3. Заполните backend/.env.test своими значениями.
 
