@@ -81,16 +81,16 @@ curl -X POST http://localhost:8080/api/shorten -H "Content-Type: application/jso
 
 Ответ:
 {"shortCode": "abc123",
-"shortUrl":"http://localhost:3000/abc123"
+"shortUrl":"http://localhost:8080/abc123"
 }
 
 ### Переход по короткой ссылке
-curl -L http://localhost:3000/abc123
+curl -L http://localhost:8080/abc123
 
 Браузер перенаправится на https://example.com/very/long/url, а счетчик clicks увеличится на 1
 
 ### Статистика
-curl http://localhost:3000/api/stats/abc123
+curl http://localhost:8080/api/stats/abc123
 
 Ответ:
 {"originalUrl":"https://example.com/very/long/url",

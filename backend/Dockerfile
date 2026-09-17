@@ -6,6 +6,13 @@ WORKDIR /app
 # Зеркала
 ENV NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
 # ENV NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node
+ENV NPM_CONFIG_REPLACE_REGISTRY_HOST=always
+
+ENV PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
+ENV PRISMA_BINARIES_MIRROR=https://npmmirror.com/mirrors/prisma
+# На всякий случай — игнорировать ошибки проверки контрольных сумм
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+
 ENV NPM_CONFIG_FETCH_TIMEOUT=60000
 ENV NPM_CONFIG_FETCH_RETRIES=5
 ENV NPM_CONFIG_FETCH_RETRY_MINTIMEOUT=20000
@@ -29,6 +36,16 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+#  Зеркала
+ENV NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
+# ENV NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node
+ENV NPM_CONFIG_REPLACE_REGISTRY_HOST=always
+
+ENV PRISMA_ENGINES_MIRROR=https://registry.npmmirror.com/-/binary/prisma
+ENV PRISMA_BINARIES_MIRROR=https://npmmirror.com/mirrors/prisma
+# На всякий случай — игнорировать ошибки проверки контрольных сумм
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
@@ -38,7 +55,7 @@ COPY --from=builder /app/prisma.config.ts ./
 
 COPY --from=builder /app/src/generated ./dist/generated
 
-RUN npm prune --omit=dev
+RUN npm prune --omit=dev --no-audit --no-fund
 
 RUN mkdir -p /app/logs
 
