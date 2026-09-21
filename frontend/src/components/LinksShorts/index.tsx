@@ -60,7 +60,7 @@ export function LinkShorts() {
             
             {shortUrl && (
                 <div>
-                    <a className='link' href={shortUrl} target='_blank' rel="noopener noreferrer">{shortUrl}</a>
+                    <a className={ css.link } href={shortUrl} target='_blank' rel="noopener noreferrer">{shortUrl}</a>
                     <button onClick={handleCopy}>Копировать в буфер обмена</button>
                 </div>
             )}

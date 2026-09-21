@@ -18,6 +18,10 @@ function isSelfRedirect(url: string): boolean {
 export const urlService = {
   
   async shorten(originalUrl: string) {
+    if (isSelfRedirect(originalUrl)) {
+      throw new Error('Нельзя сокращать ссылки на этот же сервис')
+    }
+
     let short_code: string
     let attempts = 0
 
