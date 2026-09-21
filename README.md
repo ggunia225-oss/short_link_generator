@@ -37,8 +37,12 @@ GET | /api/stats/:shortCode - Статистика. Возвращает {origin
 ### 2. Клонирование и настройка
 git clone https://github.com/ggunia225-oss/short_link_generator.git
 cd short_link_generator
+
 Создайте корневой .env (рядом с docker-compose.yml)
-Пример приложен в .env.example можно переименовать в .env
+Пример приложен в .env.example, можно переименовать в .env
+
+В папке frontend тоже создайте .env
+Пример приложен в .env.production.example, можно переименовать в .env
 
 В Docker 'DB_HOST' и 'REDIS_HOST' переопределяются автоматически на 'postgres' и 'redis' - их в .env писать не нужно
 
