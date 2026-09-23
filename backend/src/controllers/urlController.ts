@@ -19,10 +19,17 @@ export const urlController = {
       return res.status(201).json(data)
     } catch (err) {
       // console.error(err)
-      logger.error('Ошибка создания ссылки:', err)
-      if (err instanceof Error && err.message.includes('уникальный код')) {
-        return res.status(500).json({ error: err.message })
+      if (err instanceof Error) {
+        if (err.message.includes('Нельзя сокращать ссылки')) {
+          logger.warn(`Клиентская ошибка создания ссылки(400): ${err.message}`)
+          return res.status(400).json({error: err.message})
+        }
+        if (err.message.includes('уникальный код')) {
+          logger.error(`Ошибка создания ссылки(500): ${err.message}`)
+          return res.status(500).json({ error: err.message })
+        }
       }
+      logger.error('Ошибка создания ссылки:', err)
       return res.status(500).json({ error: 'Внутренняя ошибка сервера' })
     }
   },
